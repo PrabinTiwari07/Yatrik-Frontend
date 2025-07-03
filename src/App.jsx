@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import Login from './pages/authentication/Login';
+import Register from './pages/authentication/Register';
+import VerifyOtp from './pages/authentication/verifyOtp'; // adjust path
+import Contact from './pages/contact/contact';
+import ForgotPassword from './pages/ForgotPassword/forgotPassword';
+import ResetPassword from './pages/ForgotPassword/resetPassword';
+import VerifyResetOtp from './pages/ForgotPassword/verifyResetOtp';
+import HireDriver from './pages/homepage/hireDriver';
+import Home from './pages/homepage/home';
+import SelfDrive from './pages/homepage/selfDrive';
+import LandingPage from './pages/landing'; // ✅ Case-sensitive on some OS like Linux
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        {/* Forgot Password Flow */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/self-drive" element={<SelfDrive />} />
+        <Route path="/hire-driver" element={<HireDriver />} />
+
+
+        {/* Uncomment and add pages when ready */}
+        {/* <Route path="/contact" element={<Contact />} /> */}
+        {/* <Route path="/self-drive" element={<SelfDrive />} /> */}
+        {/* <Route path="/hire-driver" element={<HireDriver />} /> */}
+        {/* <Route path="/sign-in" element={<SignIn />} /> */}
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
