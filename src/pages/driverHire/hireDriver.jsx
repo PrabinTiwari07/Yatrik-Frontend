@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { IoMdArrowDropdown, IoMdCar } from 'react-icons/io';
@@ -24,11 +25,11 @@ const CustomTextField = styled(TextField)({
             borderColor: '#9ca3af',
         },
         '&.Mui-focused fieldset': {
-            borderColor: '#3b82f6',
+            borderColor: '#DC2626',
         },
     },
     '& .MuiInputLabel-root.Mui-focused': {
-        color: '#3b82f6',
+        color: '#DC2626',
     },
 });
 
@@ -56,13 +57,47 @@ const HireDriver = () => {
 
     const navigate = useNavigate();
 
+    // Calculate duration in days
+    const calculateDuration = () => {
+        if (!pickupDate || !dropoffDate) return 0;
+
+        const pickup = dayjs(pickupDate);
+        const dropoff = dayjs(dropoffDate);
+        const diffInDays = dropoff.diff(pickup, 'day');
+
+        // Minimum 1 day booking
+        return Math.max(1, diffInDays);
+    };
+
+    // Get duration for display
+    const getDurationDisplay = () => {
+        const days = calculateDuration();
+        if (days === 0) return 'Select dates';
+        if (days === 1) return '1 day';
+        return `${days} days`;
+    };
+
+    // Fixed pickup location handler
+    const handlePickupLocationSelect = (address) => {
+        setPickupLocation(address);
+        setShowPickupMap(false);
+        console.log('Pickup location selected:', address);
+    };
+
+    // Fixed dropoff location handler
+    const handleDropoffLocationSelect = (address) => {
+        setDropoffLocation(address);
+        setShowDropoffMap(false);
+        console.log('Dropoff location selected:', address);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!pickupCoords || !pickupLocation.trim()) {
+        if (!pickupLocation.trim()) {
             return toast.error('Please select a valid pickup location.');
         }
-        if (!dropoffCoords || !dropoffLocation.trim()) {
+        if (!dropoffLocation.trim()) {
             return toast.error('Please select a valid dropoff location.');
         }
         if (!pickupDate || !pickupTime) {
@@ -75,40 +110,42 @@ const HireDriver = () => {
             return toast.error('Please select a vehicle category.');
         }
 
-        // Format dates for display
-        const formatDate = (date) => {
-            return date ? new Date(date).toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            }) : '';
-        };
+        // Validate dates
+        const pickup = dayjs(pickupDate).hour(dayjs(pickupTime).hour()).minute(dayjs(pickupTime).minute());
+        const dropoff = dayjs(dropoffDate).hour(dayjs(dropoffTime).hour()).minute(dayjs(dropoffTime).minute());
 
-        // Format time for display
-        const formatTime = (time) => {
-            return time ? new Date(time).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            }) : '';
-        };
+        if (pickup.isAfter(dropoff)) {
+            return toast.error('Drop-off date and time must be after pickup date and time.');
+        }
+
+        if (pickup.isBefore(dayjs())) {
+            return toast.error('Pickup date and time cannot be in the past.');
+        }
+
+        const duration = calculateDuration();
 
         // Prepare trip data to pass to the driver page
         const tripData = {
             pickup: {
                 location: pickupLocation,
-                date: formatDate(pickupDate),
-                time: formatTime(pickupTime)
+                // Convert dayjs to JavaScript Date object
+                date: pickupDate.toDate(), // This converts dayjs to native Date
+                time: pickupTime.toDate(), // This converts dayjs to native Date
+                dateFormatted: pickup.format('ddd, MMM DD, YYYY'),
+                timeFormatted: pickup.format('hh:mm A')
             },
             dropoff: {
                 location: dropoffLocation,
-                date: formatDate(dropoffDate),
-                time: formatTime(dropoffTime)
+                // Convert dayjs to JavaScript Date object
+                date: dropoffDate.toDate(), // This converts dayjs to native Date
+                time: dropoffTime.toDate(), // This converts dayjs to native Date
+                dateFormatted: dropoff.format('ddd, MMM DD, YYYY'),
+                timeFormatted: dropoff.format('hh:mm A')
             },
             category,
-            duration: '1 day', // You might want to calculate this based on the dates
-            distance: '25 km'  // You might want to calculate this using the coordinates
+            duration: duration,
+            durationDisplay: getDurationDisplay(),
+            distance: '25 km'  // You might want to calculate this using coordinates
         };
 
         // Navigate to driver selection page with trip data
@@ -125,7 +162,7 @@ const HireDriver = () => {
                     <div className="bg-white p-8 rounded-2xl shadow-lg">
                         <div className="text-center mb-8">
                             <div className="inline-flex items-center justify-center w-20 h-20 bg-black rounded-full mb-4">
-                                <IoMdCar className="w-10 h-10 text-white" />
+                                <IoMdCar className="w-10 h-10 text-red-500" />
                             </div>
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">Hire a Professional Driver</h1>
                             <p className="text-gray-600">
@@ -135,7 +172,7 @@ const HireDriver = () => {
                         <div className="space-y-4">
                             {['Experienced & verified drivers', '24/7 customer support', 'Flexible booking options', 'Safe and comfortable ride'].map((feature, index) => (
                                 <div key={index} className="flex items-center">
-                                    <div className="flex-shrink-0 h-5 w-5 text-green-500">
+                                    <div className="flex-shrink-0 h-5 w-5 text-red-500">
                                         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
@@ -144,6 +181,17 @@ const HireDriver = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Duration Display */}
+                        {(pickupDate && dropoffDate) && (
+                            <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-200">
+                                <h3 className="font-semibold text-gray-800 mb-2">Trip Duration</h3>
+                                <p className="text-lg font-bold text-red-600">{getDurationDisplay()}</p>
+                                <p className="text-sm text-gray-600">
+                                    From {dayjs(pickupDate).format('MMM DD')} to {dayjs(dropoffDate).format('MMM DD, YYYY')}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -164,21 +212,10 @@ const HireDriver = () => {
                                         value={pickupLocation}
                                         placeholder="Enter pickup location"
                                         readOnly
-                                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 cursor-pointer bg-gray-50 hover:bg-gray-100 truncate"
-                                        style={{ paddingRight: '2.5rem' }}
+                                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 cursor-pointer bg-gray-50 hover:bg-gray-100"
                                     />
-                                    <FaMapMarkerAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                    <FaMapMarkerAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500" />
                                 </div>
-                                {showPickupMap && (
-                                    <MapPicker
-                                        onSelect={({ lat, lng, address }) => {
-                                            setPickupCoords({ lat, lng });
-                                            setPickupLocation(address);
-                                            setShowPickupMap(false);
-                                        }}
-                                        onClose={() => setShowPickupMap(false)}
-                                    />
-                                )}
                             </div>
 
                             {/* Dropoff Location */}
@@ -193,96 +230,107 @@ const HireDriver = () => {
                                         value={dropoffLocation}
                                         placeholder="Enter drop-off location"
                                         readOnly
-                                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 cursor-pointer bg-gray-50 hover:bg-gray-100 truncate"
-                                        style={{ paddingRight: '2.5rem' }}
+                                        className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 cursor-pointer bg-gray-50 hover:bg-gray-100"
                                     />
-                                    <FaMapMarkerAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                    <FaMapMarkerAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500" />
                                 </div>
-                                {showDropoffMap && (
-                                    <MapPicker
-                                        onSelect={({ lat, lng, address }) => {
-                                            setDropoffCoords({ lat, lng });
-                                            setDropoffLocation(address);
-                                            setShowDropoffMap(false);
-                                        }}
-                                        onClose={() => setShowDropoffMap(false)}
-                                    />
-                                )}
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">Pick-up Date</label>
-                                    <div className="relative">
-                                        <DatePicker
-                                            value={pickupDate}
-                                            onChange={setPickupDate}
-                                            format="MM, DD, YYYY"
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    fullWidth
-                                                    className="bg-gray-50"
-                                                    placeholder="Select date"
-                                                />
-                                            )}
-                                        />
-                                    </div>
+                                    <DatePicker
+                                        value={pickupDate}
+                                        onChange={setPickupDate}
+                                        format="MM/DD/YYYY"
+                                        minDate={dayjs()}
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                placeholder: "Select date",
+                                                sx: {
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '12px',
+                                                        backgroundColor: '#f9fafb',
+                                                        '&.Mui-focused fieldset': {
+                                                            borderColor: '#DC2626',
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">Drop-off Date</label>
-                                    <div className="relative">
-                                        <DatePicker
-                                            value={dropoffDate}
-                                            onChange={setDropoffDate}
-                                            format="MM, DD, YYYY"
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    fullWidth
-                                                    className="bg-gray-50"
-                                                    placeholder="Select date"
-                                                />
-                                            )}
-                                        />
-                                    </div>
+                                    <DatePicker
+                                        value={dropoffDate}
+                                        onChange={setDropoffDate}
+                                        format="MM/DD/YYYY"
+                                        minDate={pickupDate || dayjs()}
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                placeholder: "Select date",
+                                                sx: {
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '12px',
+                                                        backgroundColor: '#f9fafb',
+                                                        '&.Mui-focused fieldset': {
+                                                            borderColor: '#DC2626',
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">Pick-up Time</label>
-                                    <div className="relative">
-                                        <TimePicker
-                                            value={pickupTime}
-                                            onChange={setPickupTime}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    fullWidth
-                                                    className="bg-gray-50"
-                                                    placeholder="Select time"
-                                                />
-                                            )}
-                                        />
-                                    </div>
+                                    <TimePicker
+                                        value={pickupTime}
+                                        onChange={setPickupTime}
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                placeholder: "Select time",
+                                                sx: {
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '12px',
+                                                        backgroundColor: '#f9fafb',
+                                                        '&.Mui-focused fieldset': {
+                                                            borderColor: '#DC2626',
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">Drop-off Time</label>
-                                    <div className="relative">
-                                        <TimePicker
-                                            value={dropoffTime}
-                                            onChange={setDropoffTime}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    fullWidth
-                                                    className="bg-gray-50"
-                                                    placeholder="Select time"
-                                                />
-                                            )}
-                                        />
-                                    </div>
+                                    <TimePicker
+                                        value={dropoffTime}
+                                        onChange={setDropoffTime}
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                placeholder: "Select time",
+                                                sx: {
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '12px',
+                                                        backgroundColor: '#f9fafb',
+                                                        '&.Mui-focused fieldset': {
+                                                            borderColor: '#DC2626',
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </LocalizationProvider>
@@ -310,7 +358,7 @@ const HireDriver = () => {
                         <div className="pt-2">
                             <button
                                 type="submit"
-                                className="w-full bg-black text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
                                 Find Available Drivers
                             </button>
@@ -318,6 +366,21 @@ const HireDriver = () => {
                     </form>
                 </div>
             </main>
+
+            {/* MapPicker Modals */}
+            {showPickupMap && (
+                <MapPicker
+                    onSelect={handlePickupLocationSelect}
+                    onClose={() => setShowPickupMap(false)}
+                />
+            )}
+
+            {showDropoffMap && (
+                <MapPicker
+                    onSelect={handleDropoffLocationSelect}
+                    onClose={() => setShowDropoffMap(false)}
+                />
+            )}
 
             <Footer />
             <ToastContainer
@@ -328,7 +391,7 @@ const HireDriver = () => {
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                 }}
                 progressStyle={{
-                    background: 'rgba(246, 78, 59, 0.7)'
+                    background: 'rgba(220, 38, 38, 0.7)'
                 }}
             />
         </div>

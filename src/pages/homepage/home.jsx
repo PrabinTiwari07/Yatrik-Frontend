@@ -5,7 +5,7 @@ import Footer from '../../components/footer';
 import Hero from '../../components/hero';
 import HowItWorks from '../../components/howItWorks';
 import Navbar from '../../components/Navbar';
-import PopularVehicles from '../../components/PopularVehicles';
+import PopularVehicles from '../../components/popularVehicles';
 
 const Home = () => {
     return (

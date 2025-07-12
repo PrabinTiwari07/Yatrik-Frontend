@@ -10,9 +10,12 @@ import HireDriver from './pages/driverHire/hireDriver';
 import ForgotPassword from './pages/ForgotPassword/forgotPassword';
 import ResetPassword from './pages/ForgotPassword/resetPassword';
 import VerifyResetOtp from './pages/ForgotPassword/verifyResetOtp';
+import Help from './pages/help';
 import Home from './pages/homepage/home';
 import LandingPage from './pages/landing';
 import MyBooking from './pages/myBooking';
+import Payment from './pages/payment/Payment';
+import PaymentSuccess from './pages/payment/PaymentSuccess';
 import EditProfile from './pages/profile/editprofile';
 import Profile from './pages/profile/profile';
 import SelfDrive from './pages/self-drive/selfDrive';
@@ -25,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/my-bookings" element={<MyBooking />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -42,6 +46,8 @@ function App() {
         <Route path="/driver" element={<Driver />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
 
         {/* <Route path="/admin/*" element={<AdminLayout />} /> */}
         {/* Protected Admin Routes */}

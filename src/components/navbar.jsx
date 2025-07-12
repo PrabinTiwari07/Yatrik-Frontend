@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { FaBars, FaBell, FaTimes } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
@@ -7,13 +6,16 @@ const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
 
-    const navItems = ['Home', 'Contact', 'Self Drive', 'Hire a Driver'];
+    // Updated navItems to ensure consistency
+    const navItems = ['Home', 'Rent Vehicle', 'Self Drive', 'Hire a Driver', 'Contact'];
 
+    // Corrected routeMap to ensure consistency
     const routeMap = {
-        Home: '/home',
-        Contact: '/contact',
+        'Home': '/home',
+        'Contact': '/contact',
         'Self Drive': '/self-drive',
         'Hire a Driver': '/hire-driver',
+        'Rent Vehicle': '/vehicle-rent',  // Verified this route
     };
 
     const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -23,17 +25,18 @@ const Navbar = () => {
         <header className="sticky top-0 z-50 w-full px-4 py-4 bg-transparent backdrop-blur-md">
 
             <div className="bg-[#A53041] text-white px-6 py-3 rounded-full shadow-xl flex items-center justify-between relative">
-                {/* Logo */}
+                {/* Logo and Name */}
                 <div className="flex items-center gap-3">
                     <img
                         src="/assets/logo.png"
                         alt="Logo"
                         className="h-12 w-12 bg-white p-1 rounded-full object-cover shadow-md"
                     />
+                    <span className="font-bold text-xl hidden sm:block">YatriK</span>
                 </div>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex gap-10 text-sm font-semibold">
+                <nav className="hidden md:flex gap-6 lg:gap-10 text-sm font-semibold">
                     {navItems.map((item, i) => (
                         <NavLink
                             key={i}
@@ -71,15 +74,18 @@ const Navbar = () => {
                                 <NavLink to="/profile" className="block px-4 py-2 hover:bg-gray-100">
                                     My Profile
                                 </NavLink>
+                                <NavLink to="/my-bookings" className="block px-4 py-2 hover:bg-gray-100">
+                                    Booking History
+                                </NavLink>
                                 <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
                                     Change Password
                                 </button>
-                                <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
+                                <NavLink to="/help" button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                                     Help
-                                </button>
-                                <button className="w-full text-left px-4 py-2 hover:bg-gray-100">
+                                </NavLink>
+                                <NavLink to="/login" className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
                                     Log Out
-                                </button>
+                                </NavLink>
                             </div>
                         )}
                     </div>

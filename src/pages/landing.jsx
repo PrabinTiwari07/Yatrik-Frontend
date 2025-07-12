@@ -6,7 +6,7 @@ import ExploreNepal from '../components/exploreNepal';
 import Footer from '../components/footer';
 import Hero from '../components/hero';
 import HowItWorks from '../components/howItWorks';
-import PopularVehicles from '../components/PopularVehicles';
+import PopularVehicles from '../components/popularVehicles';
 
 const LandingPage = () => {
   return (
