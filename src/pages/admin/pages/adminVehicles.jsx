@@ -19,6 +19,7 @@ const AdminVehicles = () => {
         fuel: '',
         airConditioning: false,
         price: '',
+        description: '',
         image: null,
     };
     const [formData, setFormData] = useState(initialForm);
@@ -65,6 +66,8 @@ const AdminVehicles = () => {
             fuel: vehicle.fuel,
             airConditioning: vehicle.airConditioning,
             price: vehicle.price,
+            description: vehicle.description || '',  // Add this line
+
             image: null,
         });
         setShowModal(true);
@@ -208,6 +211,14 @@ const AdminVehicles = () => {
                             </label>
                             <input name="price" placeholder="Price" type="number" className="border p-2" value={formData.price} onChange={handleInputChange} required />
                             <input name="image" type="file" accept="image/*" className="border p-2 col-span-2" onChange={handleInputChange} />
+                            <textarea
+                                name="description"
+                                placeholder="Vehicle Description"
+                                className="border p-2 col-span-2"
+                                rows={3}
+                                value={formData.description}
+                                onChange={handleInputChange}
+                            />
 
                             <div className="col-span-2 flex justify-end gap-2 mt-4">
                                 <button type="button" onClick={() => setShowModal(false)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>

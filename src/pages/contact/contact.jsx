@@ -87,7 +87,7 @@ const Contact = () => {
                 <FiClock className="mt-1 text-yellow-500" />
                 <div>
                   <h4 className="font-semibold">Support Hours</h4>
-                  <p>9AM – 6PM, Sunna to Friday</p>
+                  <p>9AM – 6PM, Sunday to Friday</p>
                 </div>
               </div>
             </div>

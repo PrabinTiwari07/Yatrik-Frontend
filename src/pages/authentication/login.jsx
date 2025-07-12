@@ -48,11 +48,19 @@ const Login = () => {
         return;
       }
 
+      // Save token and role
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('userRole', data.user?.role || 'user');
+
       toast.success('Login successful!', { position: 'top-right' });
 
       setTimeout(() => {
-        window.location.href = '/home';
+        if (data.user?.role === 'admin') {
+          window.location.href = '/admin/dashboard';
+        } else {
+          window.location.href = '/home';
+        }
       }, 1000);
     } catch (err) {
       console.error(err);

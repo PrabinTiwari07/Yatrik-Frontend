@@ -17,7 +17,7 @@ const getAuthToken = () => {
 const AdminDrivers = () => {
     const [drivers, setDrivers] = useState([]);
     const [form, setForm] = useState({
-        name: '', licenseNumber: '', gender: '', language: '',
+        name: '', licenseNumber: '', phoneNumber: '', gender: '', language: '',
         experience: '', inValleyPrice: '', outValleyPrice: '', image: null
     });
 
@@ -52,6 +52,7 @@ const AdminDrivers = () => {
         const errors = {};
         if (!form.name) errors.name = 'Required';
         if (!form.licenseNumber) errors.licenseNumber = 'Required';
+        if (!form.phoneNumber) errors.phoneNumber = 'Required';
         if (!form.gender) errors.gender = 'Required';
         if (!form.image && !isEditing) errors.image = 'Image required';
         if (!form.experience || isNaN(form.experience)) errors.experience = 'Invalid';
@@ -68,9 +69,29 @@ const AdminDrivers = () => {
         try {
             const token = getAuthToken();
             const formData = new FormData();
-            Object.entries(form).forEach(([key, value]) => {
-                if (value) formData.append(key, value);
-            });
+
+            // Log for debugging
+            console.log('Form data before submission:', form);
+
+            // Make sure phoneNumber is explicitly added to formData
+            formData.append('name', form.name);
+            formData.append('licenseNumber', form.licenseNumber);
+            formData.append('phoneNumber', form.phoneNumber); // Make sure this is included
+            formData.append('gender', form.gender);
+
+            // Split language into array if it's a string
+            if (form.language) {
+                formData.append('language', form.language);
+            }
+
+            formData.append('experience', form.experience);
+            formData.append('inValleyPrice', form.inValleyPrice);
+            formData.append('outValleyPrice', form.outValleyPrice);
+
+            // Add image if available
+            if (form.image) {
+                formData.append('image', form.image);
+            }
 
             const url = isEditing ? `${API_BASE}/${editingId}` : API_BASE;
             const method = isEditing ? 'put' : 'post';
@@ -91,6 +112,7 @@ const AdminDrivers = () => {
                 resetForm();
             }
         } catch (err) {
+            console.error('Error submitting form:', err);
             toast.error(err.response?.data?.message || 'Submit failed');
         }
     };
@@ -99,6 +121,7 @@ const AdminDrivers = () => {
         setForm({
             name: driver.name,
             licenseNumber: driver.licenseNumber,
+            phoneNumber: driver.phoneNumber,
             gender: driver.gender,
             language: driver.language.join(', '),
             experience: driver.experience,
@@ -132,7 +155,7 @@ const AdminDrivers = () => {
 
     const resetForm = () => {
         setForm({
-            name: '', licenseNumber: '', gender: '', language: '',
+            name: '', licenseNumber: '', phoneNumber: '', gender: '', language: '',
             experience: '', inValleyPrice: '', outValleyPrice: '', image: null
         });
         setEditingId(null);
@@ -161,6 +184,7 @@ const AdminDrivers = () => {
                             <th className="p-3">Photo</th>
                             <th className="p-3">Name</th>
                             <th className="p-3">License</th>
+                            <th className="p-3">Phone</th>
                             <th className="p-3">Gender</th>
                             <th className="p-3">Experience</th>
                             <th className="p-3">Price (In Valley)</th>
@@ -178,6 +202,7 @@ const AdminDrivers = () => {
                                 </td>
                                 <td className="p-3">{driver.name}</td>
                                 <td className="p-3">{driver.licenseNumber}</td>
+                                <td className="p-3">{driver.phoneNumber}</td>
                                 <td className="p-3">{driver.gender}</td>
                                 <td className="p-3">{driver.experience} yrs</td>
                                 <td className="p-3">Rs. {driver.inValleyPrice}</td>
@@ -229,6 +254,7 @@ const AdminDrivers = () => {
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[{ name: 'name', label: 'Full Name' },
                             { name: 'licenseNumber', label: 'License Number' },
+                            { name: 'phoneNumber', label: 'Phone Number' },
                             { name: 'language', label: 'Languages (comma-separated)' },
                             { name: 'experience', label: 'Experience (Years)', type: 'number' },
                             { name: 'inValleyPrice', label: 'Price (In Valley)', type: 'number' },

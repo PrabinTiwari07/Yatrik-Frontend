@@ -2,19 +2,13 @@ import { Route, Routes } from 'react-router-dom';
 import Navbar from './navbar';
 import Sidebar from './sidebar';
 
-// import Drivers from './pages/adminDrivers';
-// import AdminHireDriver from './pages/adminHireDriver';
-// import Dashboard from './pages/dashboard';
-// import SelfDrive from './pages/selfDrive';
-// import Services from './pages/services';
-
 import Drivers from './pages/adminDrivers';
-import AdminServices from './pages/adminServices'; // Make sure this import exists
+import AdminSelfDrive from './pages/adminSelfDrive';
+import AdminServices from './pages/adminServices';
+import AdminVehicles from './pages/adminVehicles'; // ✅ Import here
 import Customer from './pages/customer';
 import Dashboard from './pages/dashboard';
 import HireDriver from './pages/hiredriver';
-import SelfDrive from './pages/selfDrive';
-
 
 const AdminLayout = () => {
     return (
@@ -26,11 +20,12 @@ const AdminLayout = () => {
                     <Routes>
                         <Route index element={<Dashboard />} />
                         <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="self-drive" element={<SelfDrive />} />
                         <Route path="drivers" element={<Drivers />} />
                         <Route path="customers" element={<Customer />} />
                         <Route path="hire-driver" element={<HireDriver />} />
                         <Route path="services" element={<AdminServices />} />
+                        <Route path="vehicles" element={<AdminVehicles />} />
+                        <Route path="self-drive" element={<AdminSelfDrive />} />
                     </Routes>
                 </main>
             </div>

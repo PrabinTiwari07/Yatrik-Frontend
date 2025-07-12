@@ -1,7 +1,8 @@
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useState } from 'react';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -9,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../../components/footer';
 import MapPicker from '../../components/mapPicker';
 import Navbar from '../../components/Navbar';
+
 
 const SelfDrive = () => {
     const [pickupLocation, setPickupLocation] = useState('');
@@ -23,6 +25,18 @@ const SelfDrive = () => {
     const [licensePreview, setLicensePreview] = useState(null);
     const [showPickupMap, setShowPickupMap] = useState(false);
     const [showDropoffMap, setShowDropoffMap] = useState(false);
+    const [totalDays, setTotalDays] = useState(0);
+
+
+    useEffect(() => {
+        if (pickupDate && dropoffDate) {
+            const start = dayjs(pickupDate);
+            const end = dayjs(dropoffDate);
+            const days = end.diff(start, 'day');
+            setTotalDays(days > 0 ? days : 1);
+        }
+    }, [pickupDate, dropoffDate]);
+
 
     const navigate = useNavigate();
 
@@ -51,7 +65,8 @@ const SelfDrive = () => {
             dropoffDate: dropoffDate.toString(),
             pickupTime: pickupTime.toString(),
             dropoffTime: dropoffTime.toString(),
-            licensePreview
+            licensePreview,
+            totalDays,
         };
 
         navigate('/vehicle-list', { state: data });
@@ -158,6 +173,14 @@ const SelfDrive = () => {
                                     <TimePicker value={dropoffTime} onChange={setDropoffTime} />
                                 </div>
                             </div>
+
+                            {totalDays > 0 && (
+                                <div className="text-center text-gray-700 font-medium bg-yellow-100 p-2 rounded">
+                                    Total Days Selected: <span className="font-bold">{totalDays}</span> day{totalDays > 1 ? 's' : ''}
+                                </div>
+                            )}
+
+
                         </LocalizationProvider>
 
                         {/* License Upload */}

@@ -74,7 +74,7 @@ const MapPicker = ({ onSelect, onClose }) => {
           <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
             Cancel
           </button>
-          <button onClick={handleConfirm} className="px-4 py-2 bg-blue-600 text-white rounded">
+          <button onClick={handleConfirm} className="px-4 py-2 bg-black text-white rounded">
             Confirm Location
           </button>
         </div>
