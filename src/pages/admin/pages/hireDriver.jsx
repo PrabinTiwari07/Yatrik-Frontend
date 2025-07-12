@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaCalendarAlt, FaCheck, FaRoute, FaSearch, FaSyncAlt, FaTimes, FaUserCircle, FaUserTie } from 'react-icons/fa';
+import { FaCalendarAlt, FaCar, FaCheck, FaMapMarkerAlt, FaRoute, FaSearch, FaSyncAlt, FaTimes, FaUserCircle, FaUserTie } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -71,11 +71,11 @@ const StatsSummary = ({ requests }) => (
     </div>
 );
 
-// Customer info component
+// Customer info component - redesigned with card style
 const CustomerInfo = ({ user }) => (
-    <div className="md:col-span-3">
+    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
         <h4 className="font-semibold mb-3 text-gray-700 flex items-center gap-2">
-            <FaUserTie className="text-gray-400" /> Customer Details
+            <FaUserTie className="text-blue-500" /> Customer Details
         </h4>
         <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
@@ -95,20 +95,24 @@ const CustomerInfo = ({ user }) => (
                     </div>
                 )}
             </div>
-            <div className="space-y-2">
-                <p><span className="text-gray-500">Name:</span> {user?.fullName || 'N/A'}</p>
-                <p><span className="text-gray-500">Email:</span> {user?.email || 'N/A'}</p>
-                <p><span className="text-gray-500">Phone:</span> {user?.phone || 'N/A'}</p>
+            <div className="space-y-1">
+                <p className="font-medium text-gray-900">{user?.fullName || 'N/A'}</p>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="inline-block w-4">@</span> {user?.email || 'N/A'}
+                </p>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="inline-block w-4">☎</span> {user?.phone || 'N/A'}
+                </p>
             </div>
         </div>
     </div>
 );
 
-// Driver info component
+// Driver info component - redesigned with card style
 const DriverInfo = ({ driver }) => (
-    <div className="md:col-span-3">
+    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
         <h4 className="font-semibold mb-3 text-gray-700 flex items-center gap-2">
-            <FaUserTie className="text-blue-400" /> Driver Details
+            <FaUserTie className="text-green-500" /> Driver Details
         </h4>
         <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
@@ -128,32 +132,52 @@ const DriverInfo = ({ driver }) => (
                     </div>
                 )}
             </div>
-            <div className="space-y-2">
-                <p><span className="text-gray-500">Name:</span> {driver?.name || 'Not assigned'}</p>
-                <p><span className="text-gray-500">Phone:</span> {driver?.phoneNumber || 'N/A'}</p>
-                <p><span className="text-gray-500">License:</span> {driver?.licenseNumber || 'N/A'}</p>
+            <div className="space-y-1">
+                <p className="font-medium text-gray-900">{driver?.name || 'Not assigned'}</p>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="inline-block w-4">☎</span> {driver?.phoneNumber || 'N/A'}
+                </p>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="inline-block w-4">🪪</span> {driver?.licenseNumber || 'N/A'}
+                </p>
             </div>
         </div>
     </div>
 );
 
-// Trip details component
+// Trip details component - redesigned with card style
 const TripDetails = ({ req }) => (
-    <div className="md:col-span-4">
+    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500">
         <h4 className="font-semibold mb-3 text-gray-700 flex items-center gap-2">
-            <FaRoute className="text-gray-400" /> Trip Details
+            <FaRoute className="text-purple-500" /> Trip Details
         </h4>
-        <div className="space-y-2">
-            <div className="flex gap-2 items-start">
-                <span className="text-gray-500 min-w-[4rem]">From:</span>
-                <span>{req.pickupLocation}</span>
+        <div className="space-y-3">
+            <div className="flex items-start">
+                <div className="flex-shrink-0 mr-2 mt-1">
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                        <FaMapMarkerAlt className="text-green-600 text-sm" />
+                    </div>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">FROM</p>
+                    <p className="text-sm">{req.pickupLocation}</p>
+                </div>
             </div>
-            <div className="flex gap-2 items-start">
-                <span className="text-gray-500 min-w-[4rem]">To:</span>
-                <span>{req.dropoffLocation}</span>
+
+            <div className="flex items-start">
+                <div className="flex-shrink-0 mr-2 mt-1">
+                    <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                        <FaMapMarkerAlt className="text-red-600 text-sm" />
+                    </div>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">TO</p>
+                    <p className="text-sm">{req.dropoffLocation}</p>
+                </div>
             </div>
-            <div className="flex gap-2 items-center">
-                <FaCalendarAlt className="text-gray-400" />
+
+            <div className="flex items-center mt-2 text-sm text-gray-600">
+                <FaCalendarAlt className="text-purple-500 mr-2" />
                 <span>
                     {new Date(req.pickupDate).toLocaleDateString()} {req.pickupTime} - {new Date(req.dropoffDate).toLocaleDateString()} {req.dropoffTime}
                 </span>
@@ -162,24 +186,32 @@ const TripDetails = ({ req }) => (
     </div>
 );
 
-// Vehicle details component
+// Vehicle details component - redesigned with card style
 const VehicleDetails = ({ category, totalFare }) => (
-    <div className="md:col-span-2">
-        <h4 className="font-semibold mb-3 text-gray-700">Vehicle Category</h4>
+    <div className="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500">
+        <h4 className="font-semibold mb-3 text-gray-700 flex items-center gap-2">
+            <FaCar className="text-amber-500" /> Vehicle Details
+        </h4>
         <div className="space-y-2">
-            <p className="text-lg font-medium">{category}</p>
+            <div className="flex items-center">
+                <span className="text-gray-500 mr-2">Category:</span>
+                <span className="font-medium">{category}</span>
+            </div>
             {totalFare && (
-                <p className="text-blue-600 font-medium">Rs. {totalFare}</p>
+                <div className="flex items-center">
+                    <span className="text-gray-500 mr-2">Total fare:</span>
+                    <span className="text-blue-600 font-medium">Rs. {totalFare}</span>
+                </div>
             )}
         </div>
     </div>
 );
 
-// Request card component
+// Request card component - Completely redesigned for better separation
 const RequestCard = ({ req, updateStatus }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
         {/* Request header with ID and status */}
-        <div className="flex flex-wrap justify-between items-start mb-4 pb-4 border-b border-gray-100">
+        <div className="flex flex-wrap justify-between items-start mb-6 pb-4 border-b border-gray-100">
             <div>
                 <h3 className="text-xl font-semibold">Request #{req._id.slice(-6)}</h3>
                 <p className="text-gray-500">Placed on {new Date(req.createdAt).toLocaleString()}</p>
@@ -196,11 +228,19 @@ const RequestCard = ({ req, updateStatus }) => (
             </div>
         </div>
 
-        <div className="grid md:grid-cols-12 gap-6">
-            <CustomerInfo user={req.user} />
-            <DriverInfo driver={req.driver} />
-            <TripDetails req={req} />
-            <VehicleDetails category={req.category} totalFare={req.totalFare} />
+        {/* Content divided into two columns */}
+        <div className="grid md:grid-cols-2 gap-4">
+            {/* First column - People involved */}
+            <div className="space-y-4">
+                <CustomerInfo user={req.user} />
+                <DriverInfo driver={req.driver} />
+            </div>
+
+            {/* Second column - Trip and vehicle information */}
+            <div className="space-y-4">
+                <TripDetails req={req} />
+                <VehicleDetails category={req.category} totalFare={req.totalFare} />
+            </div>
         </div>
 
         {/* Approval/rejection buttons */}
