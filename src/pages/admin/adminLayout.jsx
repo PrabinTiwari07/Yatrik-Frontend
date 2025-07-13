@@ -3,6 +3,7 @@ import Navbar from './navbar';
 import Sidebar from './sidebar';
 
 import Drivers from './pages/adminDrivers';
+import AdminProfileDetails from './pages/adminProfileDetails';
 import AdminSelfDrive from './pages/adminSelfDrive';
 import AdminServices from './pages/adminServices';
 import AdminVehicles from './pages/adminVehicles'; // ✅ Import here
@@ -26,6 +27,7 @@ const AdminLayout = () => {
                         <Route path="services" element={<AdminServices />} />
                         <Route path="vehicles" element={<AdminVehicles />} />
                         <Route path="self-drive" element={<AdminSelfDrive />} />
+                        <Route path="user-profile" element={<AdminProfileDetails />} />
                     </Routes>
                 </main>
             </div>

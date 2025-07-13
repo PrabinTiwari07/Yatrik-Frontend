@@ -9,7 +9,8 @@ const Sidebar = () => {
         { name: 'Self Drive', path: '/admin/self-drive', icon: <FaCar /> },
         { name: 'Driver', path: '/admin/drivers', icon: <FaUserTie /> },
         { name: 'Services', path: '/admin/services', icon: <FaTools /> },
-        { name: 'Vehicles', path: '/admin/vehicles', icon: <FaTruck /> }, // ✅ New Vehicles Link
+        { name: 'Vehicles', path: '/admin/vehicles', icon: <FaTruck /> },
+        { name: 'User Profiles', path: '/admin/user-profile', icon: <FaUsers /> },
     ];
 
     return (

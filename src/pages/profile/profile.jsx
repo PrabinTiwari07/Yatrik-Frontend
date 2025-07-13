@@ -81,12 +81,91 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* License Section Placeholder */}
+        {/* License Section */}
         <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">License</h3>
-          <div className="flex items-center justify-center bg-gray-100 p-6 rounded h-40 text-gray-400 text-sm">
-            License section coming soon...
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">License Information</h3>
+            {user.license?.status && (
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.license.status === 'verified'
+                  ? 'bg-green-100 text-green-700'
+                  : user.license.status === 'rejected'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
+                {user.license.status.charAt(0).toUpperCase() + user.license.status.slice(1)}
+              </span>
+            )}
           </div>
+
+          {user.license?.licenseNumber || user.license?.licenseImage ? (
+            <div className="grid md:grid-cols-2 gap-6 p-4 border rounded-lg bg-gray-50">
+              {/* License Image */}
+              {user.license.licenseImage && (
+                <div>
+                  <h4 className="font-medium mb-2 text-gray-700">License Image</h4>
+                  <img
+                    src={`http://localhost:3000${user.license.licenseImage}`}
+                    alt="License"
+                    className="w-full max-w-sm h-40 object-cover border rounded-lg shadow-sm"
+                  />
+                </div>
+              )}
+
+              {/* License Details */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-700">License Details</h4>
+
+                {user.license.licenseNumber && (
+                  <div>
+                    <p className="text-sm text-gray-500">License Number</p>
+                    <p className="font-medium">{user.license.licenseNumber}</p>
+                  </div>
+                )}
+
+                {user.license.fullName && (
+                  <div>
+                    <p className="text-sm text-gray-500">Full Name (as on license)</p>
+                    <p className="font-medium">{user.license.fullName}</p>
+                  </div>
+                )}
+
+                {user.license.expiryDate && (
+                  <div>
+                    <p className="text-sm text-gray-500">Expiry Date</p>
+                    <p className="font-medium">
+                      {new Date(user.license.expiryDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+
+                {user.license.uploadedAt && (
+                  <div>
+                    <p className="text-sm text-gray-500">Uploaded On</p>
+                    <p className="font-medium">
+                      {new Date(user.license.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+
+                {user.license.verifiedAt && user.license.status === 'verified' && (
+                  <div>
+                    <p className="text-sm text-gray-500">Verified On</p>
+                    <p className="font-medium">
+                      {new Date(user.license.verifiedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center bg-gray-100 p-8 rounded-lg text-gray-500">
+              <div className="text-center">
+                <div className="text-3xl mb-2">📄</div>
+                <p className="text-sm">No license information uploaded</p>
+                <p className="text-xs mt-1">Upload your license in the edit profile section</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       {/* <Footer /> */}
