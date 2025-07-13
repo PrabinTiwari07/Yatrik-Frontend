@@ -5,7 +5,7 @@ import Footer from '../../components/footer';
 import Hero from '../../components/hero';
 import HowItWorks from '../../components/howItWorks';
 import Navbar from '../../components/Navbar';
-import PopularVehicles from '../../components/popularVehicles';
+import Services from '../service/Services';
 
 const Home = () => {
     return (
@@ -13,7 +13,7 @@ const Home = () => {
             <Navbar />
             <Hero />
             <HowItWorks />
-            <PopularVehicles />
+            <Services showNavbar={false} standalone={false} />
             <ChooseUs />
             <ExploreNepal />
             <AboutUs />

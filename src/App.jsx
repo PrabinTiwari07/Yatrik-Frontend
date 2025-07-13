@@ -22,6 +22,10 @@ import Profile from './pages/profile/profile';
 import SelfDrive from './pages/self-drive/selfDrive';
 import VehicleInfo from './pages/self-drive/vehicle-info';
 import VehicleList from './pages/self-drive/vehicleList';
+import Pay from './pages/service/pay';
+import PaySuccess from './pages/service/paySuccess';
+import Services from './pages/service/Services';
+import VehicleRent from './pages/service/vehicleRent';
 
 function App() {
   return (
@@ -40,8 +44,12 @@ function App() {
         <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/self-drive" element={<SelfDrive />} />
         <Route path="/vehicle-details/:id" element={<VehicleInfo />} />
+        <Route path="/vehicle-rent" element={<VehicleRent />} />
+        <Route path="/pay" element={<Pay />} />
+        <Route path="/pay-success" element={<PaySuccess />} />
 
         <Route path="/vehicle-list" element={<VehicleList />} />
         <Route path="/hire-driver" element={<HireDriver />} />

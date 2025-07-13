@@ -6,7 +6,7 @@ import ExploreNepal from '../components/exploreNepal';
 import Footer from '../components/footer';
 import Hero from '../components/hero';
 import HowItWorks from '../components/howItWorks';
-import PopularVehicles from '../components/popularVehicles';
+import Services from './service/Services';
 
 const LandingPage = () => {
   return (
@@ -26,7 +26,7 @@ const LandingPage = () => {
 
       <Hero />
       <HowItWorks />
-      <PopularVehicles />
+      <Services showNavbar={false} standalone={false} />
       <ChooseUs />
       <ExploreNepal />
       <AboutUs />

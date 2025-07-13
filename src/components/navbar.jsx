@@ -9,7 +9,7 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     // Updated navItems to ensure consistency
-    const navItems = ['Home', 'Rent Vehicle', 'Self Drive', 'Hire a Driver', 'Contact'];
+    const navItems = ['Home', 'Services', 'Self Drive', 'Hire a Driver', 'Contact'];
 
     // Corrected routeMap to ensure consistency
     const routeMap = {
@@ -17,7 +17,7 @@ const Navbar = () => {
         'Contact': '/contact',
         'Self Drive': '/self-drive',
         'Hire a Driver': '/hire-driver',
-        'Rent Vehicle': '/vehicle-rent',  // Verified this route
+        'Services': '/services',  // Verified this route
     };
 
     const toggleMenu = () => setMenuOpen(!menuOpen);

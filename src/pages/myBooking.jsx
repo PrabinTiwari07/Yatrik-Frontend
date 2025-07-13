@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaCalendar, FaCar, FaCreditCard, FaMapMarkerAlt, FaMoneyBillWave, FaUser } from 'react-icons/fa';
+import { FaCalendar, FaCar, FaCreditCard, FaKey, FaMapMarkerAlt, FaMoneyBillWave, FaUser } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,7 +11,8 @@ import Navbar from '../components/Navbar';
 const MyBooking = () => {
     const [selfDriveBookings, setSelfDriveBookings] = useState([]);
     const [driverHireBookings, setDriverHireBookings] = useState([]);
-    const [activeTab, setActiveTab] = useState('self-drive'); // 'self-drive' or 'driver-hire'
+    const [vehicleRentalBookings, setVehicleRentalBookings] = useState([]);
+    const [activeTab, setActiveTab] = useState('vehicle-rental'); // 'self-drive', 'driver-hire', or 'vehicle-rental'
     const [loading, setLoading] = useState(true);
     const location = useLocation();
 
@@ -29,6 +30,12 @@ const MyBooking = () => {
             setLoading(true);
             try {
                 const token = localStorage.getItem('token');
+
+                // Fetch vehicle rental bookings
+                const vehicleRentalRes = await axios.get('http://localhost:3000/api/services/user/vehicle-bookings', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setVehicleRentalBookings(vehicleRentalRes.data.bookings || []);
 
                 // Fetch self-drive bookings
                 const selfDriveRes = await axios.get('http://localhost:3000/api/selfdrive/my-bookings', {
@@ -107,6 +114,16 @@ const MyBooking = () => {
                 <div className="bg-white rounded-lg shadow-sm mb-6">
                     <div className="flex border-b">
                         <button
+                            onClick={() => setActiveTab('vehicle-rental')}
+                            className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${activeTab === 'vehicle-rental'
+                                ? 'text-red-600 border-b-2 border-red-600 bg-red-50'
+                                : 'text-gray-600 hover:text-gray-800'
+                                }`}
+                        >
+                            <FaKey className="inline mr-2" />
+                            Vehicle Rental ({vehicleRentalBookings.length})
+                        </button>
+                        <button
                             onClick={() => setActiveTab('self-drive')}
                             className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${activeTab === 'self-drive'
                                 ? 'text-red-600 border-b-2 border-red-600 bg-red-50'
@@ -128,6 +145,116 @@ const MyBooking = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Vehicle Rental Bookings */}
+                {activeTab === 'vehicle-rental' && (
+                    <div>
+                        <h3 className="text-xl font-semibold mb-4 text-gray-700">Vehicle Rental Bookings</h3>
+                        {vehicleRentalBookings.length === 0 ? (
+                            <div className="bg-white rounded-lg shadow p-8 text-center">
+                                <FaKey className="mx-auto text-gray-400 text-4xl mb-4" />
+                                <p className="text-gray-600">No vehicle rental bookings found.</p>
+                            </div>
+                        ) : (
+                            vehicleRentalBookings.map((booking) => (
+                                <div
+                                    key={booking._id}
+                                    className="bg-white rounded-lg shadow-md p-6 mb-6 hover:shadow-lg transition-shadow"
+                                >
+                                    <div className="flex flex-col md:flex-row gap-6">
+                                        <img
+                                            src={booking.vehicle?.image || '/assets/car.jpg'}
+                                            alt={booking.vehicleName}
+                                            className="w-full md:w-48 h-32 object-cover rounded-lg"
+                                        />
+                                        <div className="flex-1 space-y-3">
+                                            <div className="flex justify-between items-start">
+                                                <h3 className="text-xl font-semibold text-gray-800">{booking.vehicleName}</h3>
+                                                <div className="flex flex-col gap-2">
+                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
+                                                        {booking.status || 'Pending'}
+                                                    </span>
+                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                                                        💳 {booking.paymentStatus || 'Cash'}
+                                                    </span>
+                                                    {booking.includeDriver && (
+                                                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                                            👨‍💼 With Driver
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaCalendar className="mr-2 text-gray-400" />
+                                                        <span className="font-medium">Total Days:</span> {booking.totalDays}
+                                                    </p>
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaMoneyBillWave className="mr-2 text-gray-400" />
+                                                        <span className="font-medium">Total Price:</span> Rs. {booking.totalPrice}
+                                                    </p>
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaCar className="mr-2 text-gray-400" />
+                                                        <span className="font-medium">Rental Type:</span> {booking.rentalType || 'self-drive'}
+                                                    </p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaMapMarkerAlt className="mr-2 text-green-500" />
+                                                        <span className="font-medium">Pickup:</span> {booking.pickupLocation}
+                                                    </p>
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaMapMarkerAlt className="mr-2 text-red-500" />
+                                                        <span className="font-medium">Dropoff:</span> {booking.dropoffLocation}
+                                                    </p>
+                                                    <p className="flex items-center text-gray-600">
+                                                        <FaCreditCard className="mr-2 text-gray-400" />
+                                                        <span className="font-medium">Payment:</span> {booking.paymentMethod}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Payment Details Section for Vehicle Rentals */}
+                                            {booking.paymentInfo && booking.paymentStatus === 'paid' && (
+                                                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                                                    <h4 className="font-semibold text-green-800 mb-2 flex items-center">
+                                                        <FaCreditCard className="mr-2" />
+                                                        Payment Details
+                                                    </h4>
+                                                    <div className="text-xs text-green-700 space-y-1">
+                                                        <p><strong>Transaction ID:</strong> {booking.paymentInfo.transactionId}</p>
+                                                        <p><strong>Amount:</strong> Rs. {(booking.paymentInfo.amount / 100).toLocaleString()}</p>
+                                                        <p><strong>Method:</strong> Khalti</p>
+                                                        <p><strong>Paid At:</strong> {new Date(booking.paymentInfo.paidAt).toLocaleString()}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                                <p className="text-sm text-gray-600">
+                                                    <span className="font-medium">Pickup:</span> {new Date(booking.pickupTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on {new Date(booking.pickupDate).toLocaleDateString()}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    <span className="font-medium">Dropoff:</span> {new Date(booking.dropoffTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on {new Date(booking.dropoffDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+
+                                            {booking.notes && (
+                                                <div className="pt-2">
+                                                    <p className="text-sm text-gray-600">
+                                                        <span className="font-medium">Notes:</span> {booking.notes}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
 
                 {/* Self Drive Bookings */}
                 {activeTab === 'self-drive' && (
