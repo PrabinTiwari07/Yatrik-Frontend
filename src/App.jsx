@@ -14,6 +14,7 @@ import Help from './pages/help';
 import Home from './pages/homepage/home';
 import LandingPage from './pages/landing';
 import MyBooking from './pages/myBooking';
+import Notifications from './pages/notifications';
 import Payment from './pages/payment/Payment';
 import PaymentSuccess from './pages/payment/PaymentSuccess';
 import EditProfile from './pages/profile/editprofile';
@@ -28,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/my-bookings" element={<MyBooking />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/help" element={<Help />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />

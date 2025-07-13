@@ -103,6 +103,48 @@ const VehicleInfo = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            // Send notification after successful booking
+            console.log('🔔 Creating notification for vehicle booking...');
+            try {
+                const notificationData = {
+                    title: 'Vehicle Booked Successfully',
+                    message: `Your vehicle ${vehicle.name} has been booked for ${numberOfDays} ${numberOfDays === 1 ? 'day' : 'days'}. Pickup: ${bookingState.pickupLocation}. Payment method: Cash on Delivery.`,
+                };
+
+                console.log('🔔 Notification data:', notificationData);
+                console.log('🔔 Token being used:', token ? 'Present' : 'Missing');
+                console.log('🔔 Making API call to:', 'http://localhost:3000/api/notifications');
+
+                const notificationResponse = await axios.post('http://localhost:3000/api/notifications', notificationData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 10000, // 10 second timeout
+                });
+
+                console.log('✅ Notification created successfully:', notificationResponse.data);
+                console.log('✅ Response status:', notificationResponse.status);
+
+                // Show success message for notification
+                toast.info('📧 Notification sent successfully!', {
+                    position: "top-right",
+                    autoClose: 1500,
+                });
+
+            } catch (notificationError) {
+                console.error('❌ Failed to send notification:', notificationError);
+                console.error('❌ Notification error response:', notificationError.response?.data);
+                console.error('❌ Notification error status:', notificationError.response?.status);
+                console.error('❌ Notification error message:', notificationError.message);
+
+                // Show warning that notification failed but booking succeeded
+                toast.warning('⚠️ Booking successful but notification failed to send', {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            }
+
             toast.success('Vehicle booked successfully! (Cash on Delivery)');
             navigate('/my-bookings', {
                 state: {

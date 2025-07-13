@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaBars, FaBell, FaTimes } from 'react-icons/fa';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const navigate = useNavigate();
 
     // Updated navItems to ensure consistency
     const navItems = ['Home', 'Rent Vehicle', 'Self Drive', 'Hire a Driver', 'Contact'];
@@ -20,6 +22,37 @@ const Navbar = () => {
 
     const toggleMenu = () => setMenuOpen(!menuOpen);
     const toggleProfile = () => setProfileOpen(!profileOpen);
+
+    // Fetch unread notifications count
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const response = await fetch('http://localhost:5000/api/notifications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const notifications = await response.json();
+                    const unread = notifications.filter(notif => !notif.isRead).length;
+                    setUnreadCount(unread);
+                }
+            } catch (error) {
+                console.log('Error fetching notifications:', error);
+            }
+        };
+
+        fetchUnreadCount();
+        // Refresh count every minute
+        const interval = setInterval(fetchUnreadCount, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleNotificationClick = () => {
+        navigate('/notifications');
+    };
 
     return (
         <header className="sticky top-0 z-50 w-full px-4 py-4 bg-transparent backdrop-blur-md">
@@ -56,9 +89,13 @@ const Navbar = () => {
                 {/* Right side: Bell, Profile, Hamburger */}
                 <div className="flex items-center gap-4 md:gap-6">
                     {/* Bell Icon */}
-                    <div className="relative">
-                        <FaBell className="text-white/80 text-lg hover:text-white transition cursor-pointer" />
-                        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse" />
+                    <div className="relative cursor-pointer" onClick={handleNotificationClick}>
+                        <FaBell className="text-white/80 text-lg hover:text-white transition" />
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 border-2 border-white rounded-full text-xs flex items-center justify-center animate-pulse">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
                     </div>
 
                     {/* Profile Image */}

@@ -100,8 +100,41 @@ const PaymentSuccess = () => {
 
             if (bookingResult.success) {
                 localStorage.removeItem('pendingBooking'); // 🧹 Clean up only if successful
+
+                // 🚀 Send notification after successful payment booking
+                try {
+                    console.log('🔔 Creating notification for payment booking...');
+                    const notificationData = {
+                        title: 'Payment Booking Confirmed',
+                        message: 'Your driver hire booking has been successfully placed and payment completed.',
+                    };
+
+                    console.log('� Payment notification data:', notificationData);
+
+                    const notificationResponse = await fetch('http://localhost:3000/api/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(notificationData),
+                        timeout: 10000, // 10 second timeout
+                    });
+
+                    if (notificationResponse.ok) {
+                        const notificationResult = await notificationResponse.json();
+                        console.log('✅ Payment notification created successfully:', notificationResult);
+                    } else {
+                        const errorText = await notificationResponse.text();
+                        console.error('❌ Payment notification failed:', errorText);
+                    }
+                } catch (notificationError) {
+                    console.error('❌ Failed to send payment notification:', notificationError);
+                }
+
                 return true;
             } else {
+
                 toast.error('Booking could not be saved: ' + bookingResult.message);
                 return false;
             }

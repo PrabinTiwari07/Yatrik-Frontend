@@ -31,7 +31,6 @@ const Driver = () => {
                 });
                 setDrivers(res.data.drivers);
             } catch (error) {
-                console.error('Error fetching drivers:', error);
                 toast.error('Failed to fetch drivers');
             }
         };
@@ -131,6 +130,37 @@ const Driver = () => {
                     },
                 }
             );
+
+            // Send notification after successful booking
+            try {
+                const notificationData = {
+                    title: 'Driver Booked Successfully',
+                    message: `Your driver ${selectedDriver.name} has been booked for ${tripData.duration} ${tripData.duration === 1 ? 'day' : 'days'}. Payment method: Cash on Delivery.`,
+                };
+
+
+                const notificationResponse = await axios.post('http://localhost:3000/api/notifications', notificationData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 10000, // 10 second timeout
+                });
+
+                // Show success message for notification
+                toast.info('📧 Notification sent successfully!', {
+                    position: "top-right",
+                    autoClose: 1500,
+                });
+
+            } catch (notificationError) {
+
+                // Show warning that notification failed but booking succeeded
+                toast.warning('⚠️ Booking successful but notification failed to send', {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            }
 
             toast.success(`🎉 Driver booked successfully for ${tripData.duration} ${tripData.duration === 1 ? 'day' : 'days'}! Payment on delivery.`, {
                 position: "top-right",
