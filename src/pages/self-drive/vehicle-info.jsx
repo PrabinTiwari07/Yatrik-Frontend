@@ -124,24 +124,6 @@ const VehicleInfo = () => {
         }
     };
 
-    // Handle book and pay
-    const handleBookAndPay = () => {
-        if (!isUserLoggedIn()) {
-            toast.error('Please login to book this vehicle');
-            navigate('/login', { state: { from: location.pathname, bookingState } });
-            return;
-        }
-
-        navigate('/payment', {
-            state: {
-                ...bookingState,
-                vehicleId: vehicle._id,
-                totalPrice,
-                vehicleName: vehicle.name,
-            },
-        });
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -289,19 +271,12 @@ const VehicleInfo = () => {
                                     {/* Booking Buttons */}
                                     <div className="mt-6 space-y-3">
                                         <button
-                                            onClick={handleBookAndPay}
-                                            disabled={bookingLoading}
-                                            className="w-full bg-black text-white py-2.5 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                        >
-                                            {bookingLoading ? 'Processing...' : 'Book and Pay'}
-                                        </button>
-                                        <button
                                             onClick={handleBookNow}
                                             disabled={bookingLoading}
                                             className="w-full bg-black text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                                         >
                                             <span>{bookingLoading ? 'Processing...' : 'Book Now'}</span>
-                                            <span className="text-[08px] text-gray-300">(Cash on Delivery)</span>
+                                            <span className="text-xs text-gray-300">(Cash on Delivery)</span>
                                         </button>
 
                                         <button

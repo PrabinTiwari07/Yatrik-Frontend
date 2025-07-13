@@ -59,21 +59,20 @@ const Driver = () => {
     const handleBooking = async (paymentMethod = 'cash') => {
         if (!selectedDriver) return toast.error('Please select a driver');
 
-        // Double check if driver is available before booking
         if (!selectedDriver.isAvailable) {
             toast.error('Selected driver is no longer available');
             return;
         }
 
+        const totalPrice = calculateTotalPrice(selectedDriver.inValleyPrice, tripData.duration);
+
         if (paymentMethod === 'online') {
-            // Redirect to payment page for online payment
-            const totalPrice = calculateTotalPrice(selectedDriver.inValleyPrice, tripData.duration);
             const paymentData = {
                 tripData,
                 selectedDriver,
                 totalPrice,
                 bookingData: {
-                    driver: selectedDriver._id,
+                    driverId: selectedDriver._id, // ✅ Fixed key
                     pickupLocation: tripData.pickup.location,
                     dropoffLocation: tripData.dropoff.location,
                     pickupDate: tripData.pickup.date,
@@ -83,6 +82,7 @@ const Driver = () => {
                     category: tripData.category,
                     duration: tripData.duration,
                     totalPrice: totalPrice,
+                    dailyRate: selectedDriver.inValleyPrice, // ✅ Explicitly included
                     license: selectedDriver.licenseNumber,
                     paymentMethod: 'online',
                     notes: `${tripData.duration} day(s) driver hire for ${tripData.category} category vehicle - Online Payment`
@@ -92,26 +92,20 @@ const Driver = () => {
             return;
         }
 
-        // Handle cash payment booking (existing logic)
+        // Cash payment
         setIsBooking(true);
-
         try {
             const token = localStorage.getItem('token');
-            const totalPrice = calculateTotalPrice(selectedDriver.inValleyPrice, tripData.duration);
 
             const parseDate = (dateObj) => {
-                if (dateObj && dateObj.$d) {
-                    return new Date(dateObj.$d);
-                } else if (dateObj instanceof Date) {
-                    return dateObj;
-                } else if (typeof dateObj === 'string') {
-                    return new Date(dateObj);
-                }
+                if (dateObj?.$d) return new Date(dateObj.$d);
+                if (dateObj instanceof Date) return dateObj;
+                if (typeof dateObj === 'string') return new Date(dateObj);
                 return new Date();
             };
 
             const bookingData = {
-                driver: selectedDriver._id,
+                driverId: selectedDriver._id, // ✅ Changed from `driver`
                 pickupLocation: tripData.pickup.location,
                 dropoffLocation: tripData.dropoff.location,
                 pickupDate: parseDate(tripData.pickup.date),
@@ -121,17 +115,18 @@ const Driver = () => {
                 category: tripData.category,
                 duration: tripData.duration,
                 totalPrice: totalPrice,
+                dailyRate: selectedDriver.inValleyPrice, // ✅ Explicit
                 license: selectedDriver.licenseNumber,
                 paymentMethod: 'cash',
                 notes: `${tripData.duration} day(s) driver hire for ${tripData.category} category vehicle - Cash on Delivery`
             };
 
-            const res = await axios.post(
+            await axios.post(
                 'http://localhost:3000/api/driver-hires',
                 bookingData,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -153,6 +148,7 @@ const Driver = () => {
             setIsBooking(false);
         }
     };
+
 
     const handleCancel = () => {
         setSelectedDriver(null);
