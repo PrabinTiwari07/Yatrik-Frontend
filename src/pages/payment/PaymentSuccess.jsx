@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaCheckCircle, FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -11,15 +11,15 @@ const PaymentSuccess = () => {
     const navigate = useNavigate();
     const [paymentStatus, setPaymentStatus] = useState('verifying');
     const [paymentData, setPaymentData] = useState(null);
+    const alreadyVerified = useRef(false); // 🛡️ Prevent double booking
 
     const pidx = searchParams.get('pidx');
-    const status = searchParams.get('status');
-    const amount = searchParams.get('amount');
 
     useEffect(() => {
-        if (pidx) {
+        if (pidx && !alreadyVerified.current) {
+            alreadyVerified.current = true;
             verifyPayment();
-        } else {
+        } else if (!pidx) {
             setPaymentStatus('failed');
             toast.error('Invalid payment reference');
         }
@@ -42,12 +42,16 @@ const PaymentSuccess = () => {
             console.log('✅ Verification result:', result);
 
             if (result.success && result.status === 'Completed') {
-                setPaymentStatus('success');
                 setPaymentData(result.payment_data);
-                toast.success('Payment verified successfully!');
 
-                // Complete the booking process here
-                await completeBooking(result.payment_data);
+                const bookingSaved = await completeBooking(result.payment_data);
+
+                if (bookingSaved) {
+                    setPaymentStatus('success');
+                    toast.success('Payment verified and booking confirmed successfully!');
+                } else {
+                    setPaymentStatus('failed');
+                }
             } else {
                 setPaymentStatus('failed');
                 toast.error('Payment verification failed');
@@ -61,13 +65,15 @@ const PaymentSuccess = () => {
 
     const completeBooking = async (paymentData) => {
         try {
-            // Get pending booking data
             const pendingBooking = JSON.parse(localStorage.getItem('pendingBooking') || '{}');
+
+            if (!pendingBooking || Object.keys(pendingBooking).length === 0) {
+                throw new Error('No pending booking data found.');
+            }
 
             console.log('📋 Completing booking with payment data:', paymentData);
             console.log('📋 Booking details:', pendingBooking);
 
-            // 🚀 NEW: Save the driver hire booking with payment info
             const bookingResponse = await fetch('http://localhost:3000/api/driver-hires', {
                 method: 'POST',
                 headers: {
@@ -84,8 +90,8 @@ const PaymentSuccess = () => {
                         paymentMethod: 'Khalti',
                         paidAt: new Date().toISOString()
                     },
-                    status: 'pending', // Driver approval status
-                    paymentStatus: 'paid' // Payment status
+                    status: 'pending',
+                    paymentStatus: 'paid'
                 })
             });
 
@@ -93,25 +99,24 @@ const PaymentSuccess = () => {
             console.log('✅ Booking saved:', bookingResult);
 
             if (bookingResult.success) {
-                toast.success('Booking confirmed and saved successfully!');
+                localStorage.removeItem('pendingBooking'); // 🧹 Clean up only if successful
+                return true;
             } else {
                 toast.error('Booking could not be saved: ' + bookingResult.message);
+                return false;
             }
-
-            // Clean up
-            localStorage.removeItem('pendingBooking');
-
         } catch (error) {
             console.error('❌ Booking completion error:', error);
             toast.error('Failed to save booking details');
+            return false;
         }
     };
 
     const handleContinue = () => {
         if (paymentStatus === 'success') {
-            navigate('/my-bookings'); // Navigate to bookings page
+            navigate('/my-bookings');
         } else {
-            navigate('/hire-driver'); // Go back to driver selection
+            navigate('/hire-driver');
         }
     };
 
@@ -202,7 +207,6 @@ const PaymentSuccess = () => {
                 </div>
             </main>
             <Footer />
-
             <ToastContainer
                 position="top-right"
                 autoClose={5000}
